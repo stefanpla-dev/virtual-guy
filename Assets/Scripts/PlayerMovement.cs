@@ -175,7 +175,7 @@ public class PlayerMovement : MonoBehaviour
         SceneManager.LoadScene(trapScript.Respawn);
 
         //ensures gravity/player rotation returns to normal in case character is upside down when they die
-        Physics2D.gravity = new Vector2(0f,-30f);
+        Physics2D.gravity = new Vector2(0f,-9.81f);
         transform.eulerAngles = new Vector3(0,0,0);
     }
 }
