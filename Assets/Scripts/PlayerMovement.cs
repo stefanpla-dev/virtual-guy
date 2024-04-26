@@ -7,7 +7,7 @@ public class PlayerMovement : MonoBehaviour
 {
     // SerializeField allows you to modify variables in Unity interface
     [SerializeField] public float speed;
-    [SerializeField ]public float jumpSpeed;
+    [SerializeField] public float jumpSpeed;
     
     //Declared so we can manipulate these components on the Player
     private Rigidbody2D rb;
@@ -36,7 +36,7 @@ public class PlayerMovement : MonoBehaviour
     private GravitySwap gravityScript;
     
 
-    void Start()
+    private void Start()
     {
         rb = GetComponent<Rigidbody2D>();
         anim = GetComponent<Animator>();
@@ -63,12 +63,19 @@ public class PlayerMovement : MonoBehaviour
         if (facingRight == false && moveInput > 0) 
         {
             Flip();
-        } else if (facingRight == true && moveInput < 0) {
+        } else if (facingRight == true && moveInput < 0) 
+        {
             Flip();
         }
 
-        //Jump Logic
-        if (Input.GetKeyDown(KeyCode.UpArrow) && jumpCount == 0 && isGrounded){
+        //Jump Logic, jump button changes if gravity is flipped
+        if (gravityScript.upsideDown && Input.GetKeyDown(KeyCode.DownArrow) && jumpCount == 0 && isGrounded)
+        {
+            Jump();
+            anim.SetTrigger("jump");
+            jumpCount = 0;
+        } else if (!gravityScript.upsideDown && Input.GetKeyDown(KeyCode.UpArrow) && jumpCount == 0 && isGrounded)
+        {
             Jump();
             anim.SetTrigger("jump");
             jumpCount = 0;
@@ -97,7 +104,7 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
-    void Flip() 
+    private void Flip() 
     {
         facingRight = !facingRight;
         Vector3 Scaler = transform.localScale;
@@ -126,8 +133,8 @@ public class PlayerMovement : MonoBehaviour
         rb.gravityScale = gravity;
     }
 
-    //Collision Detection. Dying/Respawning for traps, next level for doors.
-    void OnTriggerEnter2D(Collider2D other)
+    //Collision Detection. Dying/Respawning for traps, next and previous levels for doors.
+    private void OnTriggerEnter2D(Collider2D other)
     {
         if(other.CompareTag("Trap") && trapScript != null)
         {
@@ -143,7 +150,7 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
-    void MiniJump()
+    private void MiniJump()
     {
         //declare a variable in the gravity swap file that returns true if gravity is flipped. access it here to change the y velocity of the minijump if gravity is upside down. 
         if (gravityScript.upsideDown) 
