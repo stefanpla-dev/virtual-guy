@@ -9,7 +9,7 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] public float speed;
     [SerializeField ]public float jumpSpeed;
     
-    //Declared sp we can manipulate these components on the player
+    //Declared so we can manipulate these components on the Player
     private Rigidbody2D rb;
     private Animator anim;
 
@@ -31,6 +31,9 @@ public class PlayerMovement : MonoBehaviour
 
     //Access Trap script
     private Trap trapScript;
+
+    //Access GravitySwap script
+    private GravitySwap gravityScript;
     
 
     void Start()
@@ -38,6 +41,7 @@ public class PlayerMovement : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
         anim = GetComponent<Animator>();
         trapScript = FindObjectOfType<Trap>();
+        gravityScript = FindObjectOfType<GravitySwap>();
     }
 
     // Update is called once per frame
@@ -81,8 +85,16 @@ public class PlayerMovement : MonoBehaviour
 
     private void Jump()
     {
-        rb.velocity = new Vector2(rb.velocity.x, jumpSpeed);
-        jumpCount += 1;
+        if (gravityScript.upsideDown)
+        {
+            rb.velocity = new Vector2(rb.velocity.x, -(jumpSpeed));
+            jumpCount += 1;
+        }
+        else 
+        {
+            rb.velocity = new Vector2(rb.velocity.x, jumpSpeed);
+            jumpCount += 1;
+        }
     }
 
     void Flip() 
@@ -114,34 +126,49 @@ public class PlayerMovement : MonoBehaviour
         rb.gravityScale = gravity;
     }
 
-    //Dying + Respawning
+    //Collision Detection. Dying/Respawning for traps, next level for doors.
     void OnTriggerEnter2D(Collider2D other)
     {
         if(other.CompareTag("Trap") && trapScript != null)
         {
             StartCoroutine(DieAndRespawn());
         }
+        else if (other.CompareTag("NextLevel"))
+        {
+            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
+        }
+        else if (other.CompareTag("PreviousLevel"))
+        {
+            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex - 1);
+        }
     }
 
     void MiniJump()
     {
-        rb.velocity = new Vector2(rb.velocity.x, jumpSpeed/2);
+        //declare a variable in the gravity swap file that returns true if gravity is flipped. access it here to change the y velocity of the minijump if gravity is upside down. 
+        if (gravityScript.upsideDown) 
+        {
+            rb.velocity = new Vector2(rb.velocity.x, -(jumpSpeed/2));
+        }
+        else 
+        {
+            rb.velocity = new Vector2(rb.velocity.x, jumpSpeed/2);
+        }
     }
 
     //interesting bug to return to - if player is mid-death and tries to swap gravity they will turn upside down, interrupt the animation, but not fall upwards. Player still dies and respawns.
-    //solution would have the player be unable to do literally anything once they hit a trap, including manipulating gravity.
+    //solution would have the player be unable to do literally anything once they hit a trap, including manipulating gravity. freezing the position is good, but freezing the entire keyboard would be better.
     IEnumerator DieAndRespawn()
     {
         MiniJump();
         yield return new WaitForSeconds(0.1f);
         rb.constraints = RigidbodyConstraints2D.FreezePosition; 
         anim.SetTrigger("die");
-        yield return new WaitForSeconds(1.5f);
+        yield return new WaitForSeconds(1.4f);
         SceneManager.LoadScene(trapScript.Respawn);
-        
+
         //ensures gravity/player rotation returns to normal in case character is upside down when they die
         Physics2D.gravity = new Vector2(0f,-30f);
         transform.eulerAngles = new Vector3(0,0,0);
-
     }
 }
