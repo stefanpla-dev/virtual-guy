@@ -13,26 +13,24 @@ public class PlayerMovement : MonoBehaviour
     private Rigidbody2D rb;
     private Animator anim;
 
-    //For Player movement
+    [Header("Player Movement")]
     private float moveInput;
     private bool facingRight = true;
 
-    //Jumping Variables
+    [Header("Jumping")]
     private bool isGrounded;
     public Transform groundCheck;
     public float checkRadius;
     public LayerMask whatIsGround;
     public int jumpCount;
 
-    //Dashing Variables
+    [Header("Dashing")]
     [SerializeField] public float dashDistance = 15f;
     [SerializeField] public float dashTime;
     bool isDashing;
 
-    //Access Trap script
+    [Header("Other Scrips Access")]
     private Trap trapScript;
-
-    //Access GravitySwap script
     private GravitySwap gravityScript;
     
 
@@ -50,7 +48,6 @@ public class PlayerMovement : MonoBehaviour
         //Boolean checks if Ground Check object (set at Player's feet) is touching the ground 
         isGrounded = Physics2D.OverlapCircle(groundCheck.position, checkRadius, whatIsGround);
 
-        //Indented inside of if statement to intro dash mechanic
         if (!isDashing)
         {
             moveInput = Input.GetAxisRaw("Horizontal");
@@ -84,9 +81,29 @@ public class PlayerMovement : MonoBehaviour
         //Dashing Logic, see coroutine below as well
         if (Input.GetKeyDown(KeyCode.Space))
         {
-            isDashing = true;
-            anim.SetBool("dash", isDashing);
-            StartCoroutine(Dash());
+            Dash();
+        }
+
+        if (Input.GetKeyDown(KeyCode.R))
+        {
+            Quit();
+        }
+    }
+    
+    //Collision Detection. Dying/Respawning for traps, next and previous levels for doors.
+    private void OnTriggerEnter2D(Collider2D other)
+    {
+        if(other.CompareTag("Trap") && trapScript != null)
+        {
+            StartCoroutine(DieAndRespawn());
+        }
+        else if (other.CompareTag("NextLevel"))
+        {
+            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
+        }
+        else if (other.CompareTag("PreviousLevel"))
+        {
+            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex - 1);
         }
     }
 
@@ -112,8 +129,14 @@ public class PlayerMovement : MonoBehaviour
         transform.localScale = Scaler;
     }
 
-    //Dashing Coroutine
-    IEnumerator Dash()
+    private void Dash()
+    {
+        isDashing = true;
+        anim.SetBool("dash", isDashing);
+        StartCoroutine(DashCoroutine());
+    }
+
+    IEnumerator DashCoroutine()
     {
         if (facingRight)
         {
@@ -131,23 +154,6 @@ public class PlayerMovement : MonoBehaviour
         isDashing = false;
         anim.SetBool("dash", isDashing);
         rb.gravityScale = gravity;
-    }
-
-    //Collision Detection. Dying/Respawning for traps, next and previous levels for doors.
-    private void OnTriggerEnter2D(Collider2D other)
-    {
-        if(other.CompareTag("Trap") && trapScript != null)
-        {
-            StartCoroutine(DieAndRespawn());
-        }
-        else if (other.CompareTag("NextLevel"))
-        {
-            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
-        }
-        else if (other.CompareTag("PreviousLevel"))
-        {
-            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex - 1);
-        }
     }
 
     private void MiniJump()
@@ -177,5 +183,10 @@ public class PlayerMovement : MonoBehaviour
         //ensures gravity/player rotation returns to normal in case character is upside down when they die
         Physics2D.gravity = new Vector2(0f,-9.81f);
         transform.eulerAngles = new Vector3(0,0,0);
+    }
+
+    private void Quit()
+    {
+        SceneManager.LoadScene(0);
     }
 }
