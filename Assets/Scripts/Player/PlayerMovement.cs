@@ -16,6 +16,8 @@ public class PlayerMovement : MonoBehaviour
     [Header("Player Movement")]
     private float moveInput;
     private bool facingRight = true;
+    [SerializeField] private AudioClip miniJumpSound;
+    [SerializeField] private AudioClip deathSound;
 
     [Header("Jumping")]
     private bool isGrounded;
@@ -23,11 +25,13 @@ public class PlayerMovement : MonoBehaviour
     public float checkRadius;
     public LayerMask whatIsGround;
     public int jumpCount;
+    [SerializeField] private AudioClip jumpSound;
 
     [Header("Dashing")]
     [SerializeField] public float dashDistance = 15f;
     [SerializeField] public float dashTime;
     bool isDashing;
+    [SerializeField] private AudioClip dashSound;
 
     [Header("Other Scrips Access")]
     private Trap trapScript;
@@ -69,11 +73,13 @@ public class PlayerMovement : MonoBehaviour
         if (gravityScript.upsideDown && Input.GetKeyDown(KeyCode.DownArrow) && jumpCount == 0 && isGrounded)
         {
             Jump();
+            SoundManager.instance.PlaySound(jumpSound);
             anim.SetTrigger("jump");
             jumpCount = 0;
         } else if (!gravityScript.upsideDown && Input.GetKeyDown(KeyCode.UpArrow) && jumpCount == 0 && isGrounded)
         {
             Jump();
+            SoundManager.instance.PlaySound(jumpSound);
             anim.SetTrigger("jump");
             jumpCount = 0;
         }
@@ -132,6 +138,7 @@ public class PlayerMovement : MonoBehaviour
     private void Dash()
     {
         isDashing = true;
+        SoundManager.instance.PlaySound(dashSound);
         anim.SetBool("dash", isDashing);
         StartCoroutine(DashCoroutine());
     }
@@ -161,10 +168,12 @@ public class PlayerMovement : MonoBehaviour
         //declare a variable in the gravity swap file that returns true if gravity is flipped. access it here to change the y velocity of the minijump if gravity is upside down. 
         if (gravityScript.upsideDown) 
         {
+            SoundManager.instance.PlaySound(miniJumpSound);
             rb.velocity = new Vector2(rb.velocity.x, -(jumpSpeed/2));
         }
         else 
         {
+            SoundManager.instance.PlaySound(miniJumpSound);
             rb.velocity = new Vector2(rb.velocity.x, jumpSpeed/2);
         }
     }
@@ -175,9 +184,11 @@ public class PlayerMovement : MonoBehaviour
     {
         MiniJump();
         yield return new WaitForSeconds(0.1f);
-        rb.constraints = RigidbodyConstraints2D.FreezePosition; 
+        rb.constraints = RigidbodyConstraints2D.FreezePosition;
         anim.SetTrigger("die");
-        yield return new WaitForSeconds(1.4f);
+        yield return new WaitForSeconds(0.7f);
+        SoundManager.instance.PlaySound(deathSound); 
+        yield return new WaitForSeconds(1.5f);
         SceneManager.LoadScene(trapScript.Respawn);
 
         //ensures gravity/player rotation returns to normal in case character is upside down when they die
