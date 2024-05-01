@@ -4,9 +4,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class PlayerMovement : MonoBehaviour
-{
-    // SerializeField allows you to modify variables in Unity interface
-    
+{   
     //Declared so we can manipulate these components on the Player
     private Rigidbody2D rb;
     private Animator anim;
@@ -38,7 +36,6 @@ public class PlayerMovement : MonoBehaviour
     private Trap trapScript;
     private GravitySwap gravityScript;
     
-
     private void Start()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -47,13 +44,15 @@ public class PlayerMovement : MonoBehaviour
         gravityScript = FindObjectOfType<GravitySwap>();
     }
 
-    // Update is called once per frame
     private void Update()
     {
         //Boolean checks if Ground Check object (set at Player's feet) is touching the ground 
         isGrounded = Physics2D.OverlapCircle(groundCheck.position, checkRadius, whatIsGround);
+
+        //use of the keyboard is conditional on the player being alive
         if (isAlive == true)
         {
+            //using this if statement as dashing suspends all other effects of gravity and moveInput
             if (!isDashing)
             {
                 moveInput = Input.GetAxisRaw("Horizontal");
@@ -61,12 +60,6 @@ public class PlayerMovement : MonoBehaviour
                 anim.SetBool("run", moveInput !=0);
                 anim.SetBool("grounded", isGrounded);
             }
-
-            //maybe come back to this - get miniJumpSound to play at regular intervals when the character moves side to side on the ground. See coroutine below.
-            // if (rb.velocity.x !=0 && isGrounded)
-            // {
-            //     StartCoroutine(RunCoroutine());
-            // }
 
             //Flips character around when direction chances
             if (facingRight == false && moveInput > 0) 
@@ -167,12 +160,6 @@ public class PlayerMovement : MonoBehaviour
             rb.velocity = new Vector2(rb.velocity.x, jumpSpeed/2);
         }
     }
-
-    // IEnumerator RunCoroutine()
-    // {
-    //     SoundManager.instance.PlaySound(miniJumpSound);
-    //     yield return new WaitForSeconds(1.1f);
-    // }
 
     IEnumerator DashCoroutine()
     {

@@ -342,7 +342,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 296, y: -172}
+  m_AnchoredPosition: {x: 296, y: -203.00002}
   m_SizeDelta: {x: 160, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &148150204
@@ -617,7 +617,7 @@ Camera:
   far clip plane: 1000
   field of view: 60
   orthographic: 1
-  orthographic size: 1.4136156
+  orthographic size: 1.4033959
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -642,7 +642,7 @@ Transform:
   m_GameObject: {fileID: 497870656}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: -0.118, z: -10}
+  m_LocalPosition: {x: 0, y: 0, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -751,7 +751,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -204, y: -90.99999}
+  m_AnchoredPosition: {x: -204, y: -122}
   m_SizeDelta: {x: 200, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!212 &792685760
@@ -829,9 +829,11 @@ MonoBehaviour:
   m_text: "BALDO WAS DEVELOPED USING THE UNITY GAME ENGINE BY STEFAN PLA TO MEET
     THE REQUIREMENTS FOR GRADUATING FLATIRON SCHOOL'S SOFTWARE ENGINEERING PROGRAM.
     \n\nA BLOG DOCUMENTING THE DEVELOPMENT PROCESS IN GREATER DETAIL CAN BE LOCATED
-    AT  https://medium.com/@StefanPla.\n\nMANY THANKS TO MOHAMMAD HOSSAIN, BEN CAVINS,
-    AND MY YOUTUBE TUITION.\n\nBACKGROUND MUSIC: TAKEDA, SOSHI. \"FLOATING MOUNTAINS.\"
-    FLOATING MOUNTAINS. 100% SILK, OCTOBER 8, 2021."
+    AT  https://medium.com/@StefanPla.\n\nA GITHUB REPOSITORY CONTAINING THE ASSETS
+    USED TO DEVELOP BALDO CAN BE FOUND AT https://github.com/stefanpla-dev/virtual-guy\n\nMANY
+    THANKS TO MOHAMMAD HOSSAIN, BEN CAVINS, AND MY YOUTUBE TUITION.\n\nBACKGROUND
+    MUSIC: TAKEDA, SOSHI. \"FLOATING MOUNTAINS.\" FLOATING MOUNTAINS. 100% SILK,
+    OCTOBER 8, 2021."
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: dc36b3fdc14f47ebb36fd484a67e268a, type: 2}
   m_sharedMaterial: {fileID: 2140032, guid: dc36b3fdc14f47ebb36fd484a67e268a, type: 2}
@@ -1557,7 +1559,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -205, y: 213}
+  m_AnchoredPosition: {x: -205, y: 214}
   m_SizeDelta: {x: 200, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2120701362
