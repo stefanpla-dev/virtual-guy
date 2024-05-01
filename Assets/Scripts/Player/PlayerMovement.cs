@@ -6,8 +6,6 @@ using UnityEngine.SceneManagement;
 public class PlayerMovement : MonoBehaviour
 {
     // SerializeField allows you to modify variables in Unity interface
-    [SerializeField] public float speed;
-    [SerializeField] public float jumpSpeed;
     
     //Declared so we can manipulate these components on the Player
     private Rigidbody2D rb;
@@ -16,6 +14,8 @@ public class PlayerMovement : MonoBehaviour
     [Header("Player Movement")]
     private float moveInput;
     private bool facingRight = true;
+    [SerializeField] public float speed;
+    [SerializeField] public float jumpSpeed;
     [SerializeField] private AudioClip miniJumpSound;
     [SerializeField] private AudioClip deathSound;
 
@@ -60,6 +60,12 @@ public class PlayerMovement : MonoBehaviour
             anim.SetBool("grounded", isGrounded);
         }
 
+        //maybe come back to this - get miniJumpSound to play at regular intervals when the character moves side to side on the ground. See coroutine below.
+        // if (rb.velocity.x !=0 && isGrounded)
+        // {
+        //     StartCoroutine(RunCoroutine());
+        // }
+
         //Flips character around when direction chances
         if (facingRight == false && moveInput > 0) 
         {
@@ -101,6 +107,7 @@ public class PlayerMovement : MonoBehaviour
     {
         if(other.CompareTag("Trap") && trapScript != null)
         {
+            GetComponent<Collider2D>().enabled = false;
             StartCoroutine(DieAndRespawn());
         }
         else if (other.CompareTag("NextLevel"))
@@ -143,29 +150,8 @@ public class PlayerMovement : MonoBehaviour
         StartCoroutine(DashCoroutine());
     }
 
-    IEnumerator DashCoroutine()
-    {
-        if (facingRight)
-        {
-            rb.velocity = new Vector2(rb.velocity.x, 0f);
-            rb.AddForce(new Vector2(dashDistance, 0f), ForceMode2D.Impulse);
-        }
-        if (!facingRight)
-        {
-            rb.velocity = new Vector2(-(rb.velocity.x), 0f);
-            rb.AddForce(new Vector2(-(dashDistance), 0f), ForceMode2D.Impulse);
-        }
-        float gravity = rb.gravityScale;
-        rb.gravityScale = 0;
-        yield return new WaitForSeconds(dashTime);
-        isDashing = false;
-        anim.SetBool("dash", isDashing);
-        rb.gravityScale = gravity;
-    }
-
     private void MiniJump()
     {
-        //declare a variable in the gravity swap file that returns true if gravity is flipped. access it here to change the y velocity of the minijump if gravity is upside down. 
         if (gravityScript.upsideDown) 
         {
             SoundManager.instance.PlaySound(miniJumpSound);
@@ -176,6 +162,32 @@ public class PlayerMovement : MonoBehaviour
             SoundManager.instance.PlaySound(miniJumpSound);
             rb.velocity = new Vector2(rb.velocity.x, jumpSpeed/2);
         }
+    }
+
+    // IEnumerator RunCoroutine()
+    // {
+    //     SoundManager.instance.PlaySound(miniJumpSound);
+    //     yield return new WaitForSeconds(1.1f);
+    // }
+
+    IEnumerator DashCoroutine()
+    {
+        if (facingRight)
+        {
+            rb.velocity = new Vector2(rb.velocity.x, 0f);
+            rb.AddForce(new Vector2(dashDistance, 0f), ForceMode2D.Impulse);
+        }
+        if (!facingRight)
+        {
+            rb.velocity = new Vector2(-(rb.velocity.x), 0f);
+            rb.AddForce(new Vector2(-(dashDistance + rb.velocity.x), 0f), ForceMode2D.Impulse);
+        }
+        float gravity = rb.gravityScale;
+        rb.gravityScale = 0;
+        yield return new WaitForSeconds(dashTime);
+        isDashing = false;
+        anim.SetBool("dash", isDashing);
+        rb.gravityScale = gravity;
     }
 
     //interesting bug to return to - if player is mid-death and tries to swap gravity they will turn upside down, interrupt the animation, but not fall upwards. Player still dies and respawns.
