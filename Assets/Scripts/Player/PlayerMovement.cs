@@ -18,6 +18,7 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] public float jumpSpeed;
     [SerializeField] private AudioClip miniJumpSound;
     [SerializeField] private AudioClip deathSound;
+    public bool isAlive = true;
 
     [Header("Jumping")]
     private bool isGrounded;
@@ -51,54 +52,56 @@ public class PlayerMovement : MonoBehaviour
     {
         //Boolean checks if Ground Check object (set at Player's feet) is touching the ground 
         isGrounded = Physics2D.OverlapCircle(groundCheck.position, checkRadius, whatIsGround);
+        if (isAlive == true)
+        {
+            if (!isDashing)
+            {
+                moveInput = Input.GetAxisRaw("Horizontal");
+                rb.velocity = new Vector2(moveInput*speed, rb.velocity.y);
+                anim.SetBool("run", moveInput !=0);
+                anim.SetBool("grounded", isGrounded);
+            }
 
-        if (!isDashing)
-        {
-            moveInput = Input.GetAxisRaw("Horizontal");
-            rb.velocity = new Vector2(moveInput*speed, rb.velocity.y);
-            anim.SetBool("run", moveInput !=0);
-            anim.SetBool("grounded", isGrounded);
-        }
+            //maybe come back to this - get miniJumpSound to play at regular intervals when the character moves side to side on the ground. See coroutine below.
+            // if (rb.velocity.x !=0 && isGrounded)
+            // {
+            //     StartCoroutine(RunCoroutine());
+            // }
 
-        //maybe come back to this - get miniJumpSound to play at regular intervals when the character moves side to side on the ground. See coroutine below.
-        // if (rb.velocity.x !=0 && isGrounded)
-        // {
-        //     StartCoroutine(RunCoroutine());
-        // }
+            //Flips character around when direction chances
+            if (facingRight == false && moveInput > 0) 
+            {
+                Flip();
+            } else if (facingRight == true && moveInput < 0) 
+            {
+                Flip();
+            }
 
-        //Flips character around when direction chances
-        if (facingRight == false && moveInput > 0) 
-        {
-            Flip();
-        } else if (facingRight == true && moveInput < 0) 
-        {
-            Flip();
-        }
+            //Jump Logic, jump button changes if gravity is flipped
+            if (gravityScript.upsideDown && Input.GetKeyDown(KeyCode.DownArrow) && jumpCount == 0 && isGrounded)
+            {
+                Jump();
+                SoundManager.instance.PlaySound(jumpSound);
+                anim.SetTrigger("jump");
+                jumpCount = 0;
+            } else if (!gravityScript.upsideDown && Input.GetKeyDown(KeyCode.UpArrow) && jumpCount == 0 && isGrounded)
+            {
+                Jump();
+                SoundManager.instance.PlaySound(jumpSound);
+                anim.SetTrigger("jump");
+                jumpCount = 0;
+            }
 
-        //Jump Logic, jump button changes if gravity is flipped
-        if (gravityScript.upsideDown && Input.GetKeyDown(KeyCode.DownArrow) && jumpCount == 0 && isGrounded)
-        {
-            Jump();
-            SoundManager.instance.PlaySound(jumpSound);
-            anim.SetTrigger("jump");
-            jumpCount = 0;
-        } else if (!gravityScript.upsideDown && Input.GetKeyDown(KeyCode.UpArrow) && jumpCount == 0 && isGrounded)
-        {
-            Jump();
-            SoundManager.instance.PlaySound(jumpSound);
-            anim.SetTrigger("jump");
-            jumpCount = 0;
-        }
+            //Dashing Logic, see coroutine below as well
+            if (Input.GetKeyDown(KeyCode.Space))
+            {
+                Dash();
+            }
 
-        //Dashing Logic, see coroutine below as well
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            Dash();
-        }
-
-        if (Input.GetKeyDown(KeyCode.R))
-        {
-            Quit();
+            if (Input.GetKeyDown(KeyCode.R))
+            {
+                Quit();
+            }
         }
     }
     
@@ -108,6 +111,7 @@ public class PlayerMovement : MonoBehaviour
         if(other.CompareTag("Trap") && trapScript != null)
         {
             GetComponent<Collider2D>().enabled = false;
+            isAlive = false;
             StartCoroutine(DieAndRespawn());
         }
         else if (other.CompareTag("NextLevel"))
@@ -190,8 +194,6 @@ public class PlayerMovement : MonoBehaviour
         rb.gravityScale = gravity;
     }
 
-    //interesting bug to return to - if player is mid-death and tries to swap gravity they will turn upside down, interrupt the animation, but not fall upwards. Player still dies and respawns.
-    //solution would have the player be unable to do literally anything once they hit a trap, including manipulating gravity. freezing the position is good, but freezing the entire keyboard would be better.
     IEnumerator DieAndRespawn()
     {
         MiniJump();
