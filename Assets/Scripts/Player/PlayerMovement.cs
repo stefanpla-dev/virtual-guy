@@ -5,11 +5,9 @@ using UnityEngine.SceneManagement;
 
 public class PlayerMovement : MonoBehaviour
 {   
-    //Declared so we can manipulate these components on the Player
+    [Header("Player Movement")]
     private Rigidbody2D rb;
     private Animator anim;
-
-    [Header("Player Movement")]
     private float moveInput;
     private bool facingRight = true;
     [SerializeField] public float speed;
@@ -49,7 +47,7 @@ public class PlayerMovement : MonoBehaviour
         //Boolean checks if Ground Check object (set at Player's feet) is touching the ground 
         isGrounded = Physics2D.OverlapCircle(groundCheck.position, checkRadius, whatIsGround);
 
-        //use of the keyboard is conditional on the player being alive
+        //use of the keyboard is conditional on the player being alive.
         if (isAlive == true)
         {
             //using this if statement as dashing suspends all other effects of gravity and moveInput
@@ -119,6 +117,7 @@ public class PlayerMovement : MonoBehaviour
 
     private void Jump()
     {
+        //utilizing a jumpCount variable to prevent the player from jumping infinite times. this can instead be achieved through gravitySwapping continuously
         if (gravityScript.upsideDown)
         {
             rb.velocity = new Vector2(rb.velocity.x, -(jumpSpeed));
